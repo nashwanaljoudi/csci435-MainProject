@@ -1,0 +1,15 @@
+# Core CV and ML libraries
+opencv-python
+mediapipe
+scikit-learn
+numpy
+imutils
+
+# Web interface
+streamlit
+
+# Image processing
+Pillow
+
+# Utilities
+joblib

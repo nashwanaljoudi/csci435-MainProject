@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project-specific: large data and model files
+data/*.zip
+data/*.tar.gz
+data/*.csv
+data/*.h5
+data/*.npy
+model/*.pkl
+model/*.joblib

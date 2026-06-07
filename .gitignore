@@ -223,5 +223,10 @@ data/*.tar.gz
 data/*.csv
 data/*.h5
 data/*.npy
-model/*.pkl
 model/*.joblib
+
+# Dataset pickle - too large for GitHub
+data/dataset.pkl
+
+# Raw Kaggle dataset images
+data/asl_alphabet*/

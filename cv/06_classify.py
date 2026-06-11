@@ -6,7 +6,7 @@ import joblib
 import numpy as np
 from pathlib import Path
 
-_MODEL_PATH = Path("model/classifier.pkl")
+_MODEL_PATH = Path(__file__).parent.parent / "model" / "classifier.pkl"
 _model = None
 
 

@@ -50,11 +50,11 @@ def process_frame(frame):
         return annotated, None, None, _smoother.current_word, _smoother.sentence
     letter, confidence = result
 
-    # Discard low-confidence predictions before smoothing
-    if confidence < 0.5:
-        return annotated, None, None, _smoother.current_word, _smoother.sentence
-
     # Step 7: smooth over the rolling window and update the word/sentence builder
+    # Every prediction is fed to the smoother regardless of confidence — the
+    # majority-vote window is what filters out noisy/wrong guesses (that's its
+    # job), so gating on confidence here only starves it of data and makes
+    # commits take far longer to occur.
     committed, word, sentence = _smoother.update(letter)
 
     return annotated, committed, confidence, word, sentence

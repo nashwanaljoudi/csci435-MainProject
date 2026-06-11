@@ -1,6 +1,6 @@
 # Core CV and ML libraries
 opencv-python
-mediapipe
+mediapipe==0.10.14  # pinned: 0.10.35+ removed the legacy mp.solutions.hands API this project uses
 scikit-learn
 numpy
 imutils
@@ -13,3 +13,4 @@ Pillow
 
 # Utilities
 joblib
+tqdm

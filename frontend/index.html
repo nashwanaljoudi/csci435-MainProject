@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ASL Sign Language Detector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body>
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+  <div class="bg-orb bg-orb--3"></div>
+
+  <header class="header">
+    <div class="header__brand">
+      <div class="header__logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+          <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+          <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+          <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-16 0v-5a2 2 0 0 1 2-2"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="header__title">ASL Detector</h1>
+        <p class="header__subtitle">American Sign Language · Real-time Recognition</p>
+      </div>
+    </div>
+    <div class="status-badge" id="statusBadge">
+      <span class="status-dot"></span>
+      <span id="statusText">Connecting…</span>
+    </div>
+  </header>
+
+  <main class="main-layout">
+
+    <!-- ── Camera Panel ─────────────────────────────────────────── -->
+    <section class="camera-panel">
+      <div class="camera-panel__top">
+        <h2 class="panel-title">Live Camera</h2>
+        <div class="camera-controls">
+          <button class="btn btn--start" id="startBtn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4" fill="#06080f"/></svg>
+            Start Camera
+          </button>
+          <button class="btn btn--stop" id="stopBtn" disabled>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+            Stop
+          </button>
+        </div>
+      </div>
+
+      <div class="camera-wrap">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="captureCanvas" hidden></canvas>
+        <img id="annotatedFeed" alt="Annotated ASL detection feed" />
+
+        <div class="camera-idle" id="cameraPlaceholder">
+          <div class="camera-idle__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="44" height="44">
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+          </div>
+          <p>Click <strong>Start Camera</strong> to begin signing</p>
+          <span>Hold each ASL letter steady — it will be added to your word automatically</span>
+        </div>
+
+        <div class="commit-flash" id="commitFlash" hidden></div>
+
+        <div class="camera-hud" id="cameraHud" hidden>
+          <div class="hud-live">
+            <span class="hud-dot"></span>
+            LIVE
+          </div>
+          <span class="hud-fps" id="fpsLabel">— FPS</span>
+        </div>
+      </div>
+
+      <div class="camera-meta">
+        <span id="modelLabel">Model: checking…</span>
+      </div>
+    </section>
+
+    <!-- ── Results Panel ─────────────────────────────────────────── -->
+    <section class="results-panel">
+
+      <!-- Letter -->
+      <div class="card letter-card">
+        <div class="card__header">
+          <span class="section-label">Detected Letter</span>
+          <button class="speak-btn" id="speakLetterBtn" disabled>
+            <svg class="speak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <span>Speak Letter</span>
+          </button>
+        </div>
+
+        <div class="letter-stage">
+          <div class="letter-glow-ring" id="letterGlowRing"></div>
+          <div class="letter-display" id="letterDisplay">—</div>
+        </div>
+
+        <div class="confidence-row">
+          <div class="conf-bar">
+            <div class="conf-fill" id="confidenceFill"></div>
+          </div>
+          <span class="conf-value" id="confidenceValue">0%</span>
+        </div>
+      </div>
+
+      <!-- Word -->
+      <div class="card word-card">
+        <div class="card__header">
+          <span class="section-label">Building Word</span>
+          <button class="speak-btn" id="speakWordBtn" disabled>
+            <svg class="speak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <span>Speak Word</span>
+          </button>
+        </div>
+        <div class="word-tiles" id="wordTiles">
+          <p class="tiles-empty" id="tilesEmpty">Start signing to build a word…</p>
+        </div>
+      </div>
+
+      <!-- Sentence -->
+      <div class="card sentence-card">
+        <div class="card__header">
+          <span class="section-label">Sentence</span>
+          <button class="speak-btn" id="speakSentenceBtn" disabled>
+            <svg class="speak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <span>Speak Sentence</span>
+          </button>
+        </div>
+        <p class="sentence-text" id="sentenceText">—</p>
+
+        <div class="card__divider"></div>
+
+        <div class="card__header">
+          <span class="section-label">Full Text</span>
+          <button class="speak-btn speak-btn--primary" id="speakBtn" disabled>
+            <svg class="speak-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+              <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <span>Speak All</span>
+          </button>
+        </div>
+        <p class="full-text" id="fullText">Start signing to build text…</p>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-grid">
+        <button class="ctrl-btn" id="finalizeBtn" title="Finish the current word and add it to the sentence">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" width="16" height="16"><polyline points="9 10 4 15 9 20"/><path d="M20 4v7a4 4 0 0 1-4 4H4"/></svg>
+          End Word
+        </button>
+        <button class="ctrl-btn" id="backspaceBtn" title="Remove last letter">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"/><line x1="18" y1="9" x2="12" y2="15"/><line x1="12" y1="9" x2="18" y2="15"/></svg>
+          Backspace
+        </button>
+        <button class="ctrl-btn ctrl-btn--danger" id="clearBtn" title="Clear all text">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+          Clear All
+        </button>
+      </div>
+
+      <!-- Tips -->
+      <div class="tips-card">
+        <div class="tips-card__icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        </div>
+        <div class="tips-card__body">
+          <p>Hold each letter steady — commits after 25 frames at ≥65% confidence.</p>
+          <p>Sign <strong>space</strong> to end a word, or press <strong>End Word</strong>. Sign <strong>del</strong> to backspace.</p>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <footer class="footer">
+    CSCI435 · University of Wollongong in Dubai · Spring 2026
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>

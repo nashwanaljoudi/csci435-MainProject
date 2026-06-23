@@ -1,0 +1,19 @@
+# Core CV and ML libraries
+opencv-python
+mediapipe>=0.10.30  # Tasks Vision API (compatible with Python 3.10–3.13)
+scikit-learn
+numpy
+imutils
+
+# Web interface
+fastapi
+uvicorn[standard]
+python-multipart
+streamlit
+
+# Image processing
+Pillow
+
+# Utilities
+joblib
+tqdm

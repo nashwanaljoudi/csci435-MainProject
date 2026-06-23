@@ -206,18 +206,18 @@ function speakLetter() {
 
 function speakWord() {
   if (!currentWord) return;
-  speak(currentWord, els.speakWordBtn);
+  speak(currentWord.toLowerCase(), els.speakWordBtn);
 }
 
 function speakSentence() {
   if (!currentSentence) return;
-  speak(currentSentence, els.speakSentenceBtn);
+  speak(currentSentence.toLowerCase(), els.speakSentenceBtn);
 }
 
 function speakAll() {
   const text = els.fullText.textContent.trim();
   if (!text || text === "Start signing to build text…") return;
-  speak(text, els.speakBtn);
+  speak(text.toLowerCase(), els.speakBtn);
 }
 
 // ── API helper ────────────────────────────────────────────────────────────
@@ -264,7 +264,7 @@ async function processLoop() {
 
     const data = await api("/api/process-frame", {
       method: "POST",
-      body: JSON.stringify({ image, require_motion: false }),
+      body: JSON.stringify({ image, require_motion: true }),
     });
 
     if (data.annotated_image) {

@@ -8,8 +8,7 @@ from collections import deque
 
 class Smoother:
     WINDOW = 25
-    THRESHOLD = 0.65
-    PAUSE = 1.5
+    THRESHOLD = 0.75
     REPEAT_GAP = 4.0
 
     def __init__(self):
@@ -31,6 +30,7 @@ class Smoother:
 
     def finalize_word(self):
         self._finalize_word()
+        self._buffer.clear()
         return self.current_word, self.sentence
 
     def backspace(self):
@@ -60,11 +60,9 @@ class Smoother:
 
         if confident:
             if dominant == "nothing":
-                if self._last_commit_time is not None and now - self._last_commit_time >= self.PAUSE:
-                    self._finalize_word()
+                pass
             elif dominant == "space":
-                self._finalize_word()
-                committed = "space"
+                pass
             elif dominant == "del":
                 if dominant != self._last_committed:
                     self.backspace()
@@ -82,7 +80,6 @@ class Smoother:
                     self._last_committed = dominant
                     self._last_commit_time = now
                     committed = dominant
-        elif self._last_commit_time is not None and now - self._last_commit_time >= self.PAUSE:
-            self._finalize_word()
+        # Auto-finalization removed — word only ends when End Word button is pressed
 
         return committed, self.current_word, self.sentence

@@ -58,19 +58,24 @@ def process_frame(frame, require_motion=True):
     # Step 3: draw contour overlay; bbox may be None but we continue regardless
     _, annotated = get_hand_region(mask, enhanced)
 
-    # Step 4: skip classification if background subtraction sees no motion
+    # Step 4: skip classification if background subtraction sees no motion.
+    # Feed "nothing" so an absent hand registers in the smoothing window — this is
+    # what arms the next repeat (lets you sign the same letter twice deliberately).
     if require_motion and not hand_present(frame):
+        _smoother.update("nothing")
         return annotated, None, None, None, _smoother.current_word, _smoother.sentence
 
     # Step 5: run MediaPipe on the full enhanced frame — no bbox crop needed
     h, w = enhanced.shape[:2]
     landmarks, annotated = get_landmarks(annotated, (0, 0, w, h))
     if landmarks is None:
+        _smoother.update("nothing")
         return annotated, None, None, None, _smoother.current_word, _smoother.sentence
 
     # Step 6: predict ASL letter from landmarks
     result = predict_letter(landmarks)
     if result is None:
+        _smoother.update("nothing")
         return annotated, None, None, None, _smoother.current_word, _smoother.sentence
     letter, confidence = result
 
@@ -81,4 +86,7 @@ def process_frame(frame, require_motion=True):
     # commits take far longer to occur.
     committed, word, sentence = _smoother.update(letter)
 
+    # Report the raw per-frame prediction as the detected letter for live, real-time
+    # feedback while a sign is being formed. The smoother still gates what actually
+    # gets committed into the word, so the word stays accurate.
     return annotated, committed, confidence, letter, word, sentence

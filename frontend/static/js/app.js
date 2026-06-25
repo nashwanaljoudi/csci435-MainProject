@@ -129,10 +129,13 @@ function updateTextUI({ word, sentence, full_text: fullRaw }) {
 
 // ── Prediction UI ─────────────────────────────────────────────────────────
 function updatePrediction({ letter, confidence, committed }) {
-  currentLetter = letter || "";
+  // Hold the last detected letter when a frame returns none (e.g. window warm-up)
+  // instead of flickering back to "—"; the smoothed pipeline drives this value.
+  if (letter) currentLetter = letter;
 
-  const display   = fmtLetter(letter);
-  const isNothing = !letter || letter === "nothing";
+  const shown     = letter || currentLetter;
+  const display   = fmtLetter(shown);
+  const isNothing = !shown || shown === "nothing";
   const isCommitted = Boolean(committed && ALPHA.has(String(committed).toUpperCase()));
 
   els.letterDisplay.textContent = display;
@@ -150,7 +153,7 @@ function updatePrediction({ letter, confidence, committed }) {
   els.confidenceFill.style.width   = `${pct}%`;
   els.confidenceValue.textContent  = `${pct}%`;
 
-  els.speakLetterBtn.disabled = isNothing || letter === "space" || letter === "del";
+  els.speakLetterBtn.disabled = isNothing || shown === "space" || shown === "del";
 
   if (isCommitted) showCommitFlash(fmtLetter(committed));
 }

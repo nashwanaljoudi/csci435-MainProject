@@ -80,7 +80,7 @@ csci435-MainProject/
 - The detected letter shows live as you sign; it commits to the word once held steady
 - Click **End Word** to push the current word into your sentence
 - Click **Speak** to hear the text read aloud (browser text-to-speech)
-- Use **Backspace** to delete the last letter, or sign `DEL`
+- Use **Backspace** to delete the last letter
 
 ## Training the Model
 

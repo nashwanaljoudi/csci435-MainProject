@@ -26,6 +26,7 @@ csci435-MainProject/
 ├── run_server.py              # Start the web app
 ├── train_model.py             # Train the Random Forest classifier
 ├── process_dataset.py         # Prepare training data from raw images
+├── test_pipeline.py           # Run the CV pipeline without the browser
 ├── cv/                        # CV pipeline
 │   ├── 01_enhance.py
 │   ├── 02_segment.py
@@ -44,6 +45,7 @@ csci435-MainProject/
 │   ├── index.html
 │   └── static/
 └── docs/
+    └── report.pdf
 ```
 
 ## Setup
@@ -76,11 +78,16 @@ csci435-MainProject/
 
 ## Using the App
 
+**Live webcam**
 - Click **Start Camera** and sign ASL letters in front of your webcam
 - The detected letter shows live as you sign; it commits to the word once held steady
 - Click **End Word** to push the current word into your sentence
 - Click **Speak** to hear the text read aloud (browser text-to-speech)
 - Use **Backspace** to delete the last letter
+
+**Image upload**
+- Select an image file and click **Analyze Image**
+- The app runs the full CV pipeline on the image and shows the detected letter and confidence
 
 ## Training the Model
 
